@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget Calculator App</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+        
+        .input-section {
+            margin-bottom: 25px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #444;
+        }
+        
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="number"]:focus {
+            border-color: #4a86e8;
+            outline: none;
+        }
+        
+        .percentage-inputs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        button {
+            background: linear-gradient(to right, #6a11cb, #2575fc);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            margin-top: 30px;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #4a86e8;
+        }
+        
+        .result-label {
+            font-weight: 500;
+            color: #444;
+        }
+        
+        .result-value {
+            font-weight: 600;
+            color: #2c5aa0;
+        }
+        
+        .alert {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+            border-left: 4px solid #c62828;
+        }
+        
+        @media (max-width: 480px) {
+            .percentage-inputs {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Budget Calculator App</h1>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="totalAmount">Enter Amount to Manage</label>
+                <input type="number" id="totalAmount" placeholder="Enter amount" value="100000">
+            </div>
+            
+            <h2 style="margin: 20px 0 15px; color: #444; font-size: 18px;">How would you like to divide your money?</h2>
+            
+            <div class="percentage-inputs">
+                <div class="input-group">
+                    <label for="roomRent">Room Rent (%)</label>
+                    <input type="number" id="roomRent" placeholder="Percentage" value="10">
+                </div>
+                
+                <div class="input-group">
+                    <label for="accessories">Accessories (%)</label>
+                    <input type="number" id="accessories" placeholder="Percentage" value="40">
+                </div>
+                
+                <div class="input-group">
+                    <label for="emergency">Emergency (%)</label>
+                    <input type="number" id="emergency" placeholder="Percentage" value="20">
+                </div>
+                
+                <div class="input-group">
+                    <label for="saving">Saving (%)</label>
+                    <input type="number" id="saving" placeholder="Percentage" value="30">
+                </div>
+            </div>
+            
+            <button id="calculateBtn">Evaluate My Money</button>
+        </div>
+        
+        <div class="alert" id="alertBox"></div>
+        
+        <div class="results">
+            <div class="result-item">
+                <span class="result-label">Room Rent</span>
+                <span class="result-value" id="roomRentResult">Rs.0.00</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Accessories</span>
+                <span class="result-value" id="accessoriesResult">Rs.0.00</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Emergency</span>
+                <span class="result-value" id="emergencyResult">Rs.0.00</span>
+            </div>
+            
+            <div class="result-item">
+                <span class="result-label">Saving</span>
+                <span class="result-value" id="savingResult">Rs.0.00</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Calculate and display budget when button is clicked
+            $('#calculateBtn').click(function() {
+                calculateBudget();
+            });
+            
+            // Also calculate when Enter key is pressed in any input
+            $('input').keypress(function(e) {
+                if (e.which == 13) {
+                    calculateBudget();
+                }
+            });
+            
+            function calculateBudget() {
+                // Hide any previous alert
+                $('#alertBox').hide();
+                
+                // Get input values
+                const totalAmount = parseFloat($('#totalAmount').val());
+                const roomRentPercent = parseFloat($('#roomRent').val());
+                const accessoriesPercent = parseFloat($('#accessories').val());
+                const emergencyPercent = parseFloat($('#emergency').val());
+                const savingPercent = parseFloat($('#saving').val());
+                
+                // Validate inputs
+                if (isNaN(totalAmount) || isNaN(roomRentPercent) || 
+                    isNaN(accessoriesPercent) || isNaN(emergencyPercent) || 
+                    isNaN(savingPercent)) {
+                    showAlert('Please enter valid numbers in all fields.');
+                    return;
+                }
+                
+                // Check if percentages add up to 100%
+                const totalPercent = roomRentPercent + accessoriesPercent + emergencyPercent + savingPercent;
+                if (totalPercent !== 100) {
+                    showAlert(`Percentages add up to ${totalPercent}% instead of 100%. Please adjust your values.`);
+                    return;
+                }
+                
+                // Calculate amounts
+                const roomRentAmount = (totalAmount * roomRentPercent / 100).toFixed(2);
+                const accessoriesAmount = (totalAmount * accessoriesPercent / 100).toFixed(2);
+                const emergencyAmount = (totalAmount * emergencyPercent / 100).toFixed(2);
+                const savingAmount = (totalAmount * savingPercent / 100).toFixed(2);
+                
+                // Check if amounts add up correctly (handle floating point precision issues)
+                const calculatedTotal = parseFloat(roomRentAmount) + parseFloat(accessoriesAmount) + 
+                                       parseFloat(emergencyAmount) + parseFloat(savingAmount);
+                
+                if (Math.abs(calculatedTotal - totalAmount) > 0.01) {
+                    showAlert('The amounts cannot be correctly divided with these percentages. Please adjust your values.');
+                    return;
+                }
+                
+                // Display results
+                $('#roomRentResult').text('Rs.' + roomRentAmount);
+                $('#accessoriesResult').text('Rs.' + accessoriesAmount);
+                $('#emergencyResult').text('Rs.' + emergencyAmount);
+                $('#savingResult').text('Rs.' + savingAmount);
+            }
+            
+            function showAlert(message) {
+                $('#alertBox').text(message).show();
+            }
+        });
+    </script>
+</body>
+</html>
